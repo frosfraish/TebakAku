@@ -1,0 +1,5113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TebakAku — Friendship Quiz</title>
+
+<!-- =====================================================
+     FIREBASE
+===================================================== -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<style>
+
+/* =====================================================
+   RESET
+===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#ffffff;
+    color:#111820;
+    overflow-x:hidden;
+}
+
+button,
+input,
+textarea{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+:root{
+    --blue:#1769aa;
+    --blue-dark:#104e7d;
+    --blue-light:#edf6fc;
+    --black:#111820;
+    --gray:#68727c;
+    --light:#f5f7f8;
+    --line:#e1e6e9;
+    --white:#ffffff;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+
+    height:70px;
+
+    padding:0 6%;
+
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+
+    background:rgba(255,255,255,.94);
+    backdrop-filter:blur(15px);
+
+    border-bottom:1px solid var(--line);
+}
+
+.logo{
+    font-size:21px;
+    font-weight:900;
+    letter-spacing:-1px;
+}
+
+.logo span{
+    color:var(--blue);
+}
+
+nav{
+    display:flex;
+    align-items:center;
+    gap:28px;
+}
+
+nav button{
+    border:0;
+    background:none;
+
+    color:#687078;
+
+    font-size:10px;
+    font-weight:900;
+
+    transition:.2s;
+}
+
+nav button:hover{
+    color:var(--blue);
+}
+
+.header-btn{
+    justify-self:end;
+
+    border:0;
+    border-radius:5px;
+
+    padding:11px 18px;
+
+    background:var(--black);
+    color:#fff;
+
+    font-size:10px;
+    font-weight:900;
+
+    transition:.2s;
+}
+
+.header-btn:hover{
+    transform:translateY(-2px);
+}
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+
+    animation:pageIn .4s ease;
+}
+
+@keyframes pageIn{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* =====================================================
+   SCROLL REVEAL
+===================================================== */
+
+.reveal{
+    opacity:0;
+    transform:translateY(35px);
+
+    transition:
+        opacity .7s ease,
+        transform .7s ease;
+}
+
+.reveal.show{
+    opacity:1;
+    transform:none;
+}
+
+/* =====================================================
+   BUTTON
+===================================================== */
+
+.btn{
+    border:0;
+    border-radius:5px;
+
+    padding:13px 20px;
+
+    background:var(--blue-dark);
+    color:#fff;
+
+    font-size:10px;
+    font-weight:900;
+
+    transition:.2s;
+}
+
+.btn:hover{
+    background:#0c3d62;
+    transform:translateY(-2px);
+}
+
+.btn:active{
+    transform:scale(.97);
+}
+
+.btn.secondary{
+    background:#fff;
+    color:var(--black);
+
+    border:1px solid var(--line);
+}
+
+.btn.danger{
+    background:#1b1f23;
+}
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+    width:88%;
+    max-width:1180px;
+
+    min-height:650px;
+
+    margin:auto;
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:60px;
+    align-items:center;
+}
+
+.hero-copy{
+    padding:40px 0;
+}
+
+.eyebrow{
+    color:var(--blue-dark);
+
+    font-size:10px;
+    font-weight:900;
+
+    letter-spacing:2px;
+}
+
+.hero h1{
+    margin:18px 0 25px;
+
+    font-size:clamp(50px,7vw,86px);
+
+    line-height:.87;
+
+    letter-spacing:-5px;
+}
+
+.hero h1 span{
+    color:var(--blue);
+}
+
+.hero p{
+    max-width:520px;
+
+    color:var(--gray);
+
+    font-size:14px;
+    line-height:1.7;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+
+    margin-top:25px;
+}
+
+/* =====================================================
+   HERO ART
+===================================================== */
+
+.hero-art{
+    min-height:480px;
+
+    position:relative;
+
+    display:grid;
+    place-items:center;
+
+    overflow:hidden;
+
+    background:var(--blue);
+}
+
+.hero-art::before{
+    content:"";
+
+    position:absolute;
+
+    width:200px;
+    height:200px;
+
+    top:-100px;
+    left:-70px;
+
+    background:white;
+
+    border-radius:50%;
+}
+
+.hero-art::after{
+    content:"";
+
+    position:absolute;
+
+    width:330px;
+    height:330px;
+
+    right:-150px;
+    bottom:-160px;
+
+    border:1px solid rgba(255,255,255,.25);
+
+    border-radius:50%;
+}
+
+.quiz-card{
+    width:76%;
+    max-width:390px;
+
+    position:relative;
+    z-index:2;
+
+    padding:28px;
+
+    background:white;
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.18);
+
+    animation:floatCard 4s ease-in-out infinite;
+}
+
+@keyframes floatCard{
+
+    0%,
+    100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-10px);
+    }
+
+}
+
+.quiz-card small{
+    color:var(--blue-dark);
+    font-weight:900;
+}
+
+.quiz-card h2{
+    margin:13px 0 20px;
+
+    font-size:25px;
+
+    line-height:1;
+}
+
+.preview{
+    margin:7px 0;
+
+    padding:11px;
+
+    border:1px solid var(--line);
+
+    font-size:10px;
+
+    transition:.25s;
+}
+
+.preview.active{
+    background:var(--blue-light);
+    border-color:#9abed5;
+}
+
+.live-reaction{
+    display:flex;
+    align-items:center;
+    gap:9px;
+
+    margin-top:18px;
+
+    color:#687078;
+
+    font-size:9px;
+}
+
+.live-dot{
+    width:7px;
+    height:7px;
+
+    background:var(--blue);
+
+    border-radius:50%;
+
+    animation:pulse 1.4s infinite;
+}
+
+@keyframes pulse{
+
+    0%,
+    100%{
+        opacity:.35;
+        transform:scale(.8);
+    }
+
+    50%{
+        opacity:1;
+        transform:scale(1.15);
+    }
+
+}
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.stats{
+    width:88%;
+    max-width:1180px;
+
+    margin:auto;
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+}
+
+.stat{
+    padding:26px;
+
+    border-right:1px solid var(--line);
+}
+
+.stat:last-child{
+    border-right:0;
+}
+
+.stat strong{
+    display:block;
+
+    font-size:28px;
+}
+
+.stat span{
+    color:var(--gray);
+
+    font-size:10px;
+}
+
+/* =====================================================
+   BLUE SECTION
+===================================================== */
+
+.blue-section{
+    margin-top:80px;
+
+    padding:80px 6%;
+
+    background:var(--blue);
+
+    color:white;
+}
+
+.inner{
+    max-width:1180px;
+    margin:auto;
+}
+
+.blue-section h2{
+    max-width:720px;
+
+    margin-bottom:45px;
+
+    font-size:50px;
+
+    line-height:.95;
+
+    letter-spacing:-3px;
+}
+
+.steps{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+}
+
+.step{
+    padding:20px;
+
+    border-right:1px solid rgba(255,255,255,.3);
+}
+
+.step:last-child{
+    border-right:0;
+}
+
+.step b{
+    font-size:10px;
+    opacity:.65;
+}
+
+.step h3{
+    margin:35px 0 10px;
+}
+
+.step p{
+    font-size:11px;
+    line-height:1.7;
+    opacity:.75;
+}
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.container{
+    width:90%;
+    max-width:950px;
+
+    margin:auto;
+
+    padding:65px 0 100px;
+}
+
+.title{
+    padding-bottom:18px;
+
+    border-bottom:1px solid var(--line);
+}
+
+.title h2{
+    font-size:45px;
+    letter-spacing:-3px;
+}
+
+.title p{
+    margin-top:5px;
+
+    color:var(--gray);
+
+    font-size:11px;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+label{
+    display:block;
+
+    margin:20px 0 7px;
+
+    color:#6d7378;
+
+    font-size:9px;
+    font-weight:900;
+
+    letter-spacing:1px;
+}
+
+input,
+textarea{
+    width:100%;
+
+    padding:13px;
+
+    outline:none;
+
+    border:1px solid #dce1e4;
+    border-radius:4px;
+
+    background:white;
+
+    color:var(--black);
+}
+
+input:focus,
+textarea:focus{
+    border-color:var(--blue);
+
+    box-shadow:
+        0 0 0 3px var(--blue-light);
+}
+
+textarea{
+    min-height:90px;
+
+    resize:vertical;
+}
+
+/* =====================================================
+   QUESTION BOX
+===================================================== */
+
+.question-box{
+    margin-top:18px;
+
+    padding:20px;
+
+    background:#f7f8f9;
+
+    border:1px solid var(--line);
+
+    animation:cardIn .4s ease;
+}
+
+@keyframes cardIn{
+
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+
+    to{
+        opacity:1;
+        transform:none;
+    }
+
+}
+
+.question-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.question-number{
+    font-size:11px;
+    font-weight:900;
+}
+
+.remove-question{
+    border:0;
+
+    padding:7px 10px;
+
+    background:white;
+
+    color:#555;
+
+    border:1px solid var(--line);
+
+    font-size:9px;
+}
+
+.options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:8px;
+}
+
+.correct-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+
+    gap:8px;
+}
+
+.correct-grid label{
+    margin:0;
+
+    padding:11px;
+
+    background:white;
+
+    border:1px solid var(--line);
+
+    cursor:pointer;
+
+    font-size:10px;
+}
+
+.correct-grid label:has(input:checked){
+    background:var(--blue-light);
+
+    border-color:#8db7d1;
+
+    color:var(--blue-dark);
+}
+
+.actions{
+    display:flex;
+    flex-wrap:wrap;
+
+    gap:8px;
+
+    margin-top:20px;
+}
+
+/* =====================================================
+   SHARE
+===================================================== */
+
+.share{
+    display:none;
+
+    margin-top:30px;
+
+    padding:25px;
+
+    background:var(--blue-light);
+
+    border:1px solid #cfe2ee;
+}
+
+.code{
+    margin:15px 0;
+
+    color:var(--blue-dark);
+
+    font-size:38px;
+    font-weight:900;
+
+    letter-spacing:6px;
+}
+
+/* =====================================================
+   PLAY
+===================================================== */
+
+.play{
+    width:90%;
+    max-width:900px;
+
+    margin:auto;
+
+    padding:70px 0 100px;
+}
+
+.progress{
+    height:4px;
+
+    margin:12px 0 35px;
+
+    background:#e9ecee;
+}
+
+.progress-bar{
+    width:0;
+    height:100%;
+
+    background:var(--blue);
+
+    transition:.4s;
+}
+
+.question{
+    margin-bottom:35px;
+
+    font-size:clamp(38px,5vw,62px);
+
+    line-height:.95;
+
+    letter-spacing:-3px;
+
+    animation:questionIn .4s ease;
+}
+
+@keyframes questionIn{
+
+    from{
+        opacity:0;
+        transform:translateX(-15px);
+    }
+
+    to{
+        opacity:1;
+        transform:none;
+    }
+
+}
+
+.answers{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+}
+
+.answer{
+    padding:18px;
+
+    border:1px solid var(--line);
+
+    background:white;
+
+    text-align:left;
+
+    transition:.2s;
+}
+
+.answer:hover{
+    background:var(--blue-light);
+
+    border-color:#89b0c9;
+
+    transform:translateY(-2px);
+}
+
+.answer.correct-pop{
+    background:#edf7f1;
+
+    border-color:#9bc4ab;
+
+    animation:correctPop .45s ease;
+}
+
+.answer.wrong-pop{
+    background:#f7f7f7;
+
+    border-color:#bbb;
+
+    animation:shake .4s ease;
+}
+
+@keyframes correctPop{
+
+    0%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.05);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+
+}
+
+@keyframes shake{
+
+    0%,
+    100%{
+        transform:translateX(0);
+    }
+
+    25%{
+        transform:translateX(-7px);
+    }
+
+    50%{
+        transform:translateX(7px);
+    }
+
+    75%{
+        transform:translateX(-4px);
+    }
+
+}
+
+/* =====================================================
+   REACTION
+===================================================== */
+
+.answer-reaction{
+    position:fixed;
+
+    inset:0;
+
+    z-index:3000;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:rgba(255,255,255,.4);
+
+    backdrop-filter:blur(5px);
+
+    pointer-events:none;
+}
+
+.answer-reaction.show{
+    display:flex;
+}
+
+.reaction-box{
+    width:min(90%,420px);
+
+    padding:35px 25px;
+
+    background:white;
+
+    text-align:center;
+
+    border:1px solid var(--line);
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.18);
+
+    animation:reactionPop .4s ease;
+}
+
+@keyframes reactionPop{
+
+    0%{
+        opacity:0;
+        transform:scale(.75) translateY(20px);
+    }
+
+    70%{
+        transform:scale(1.04);
+    }
+
+    100%{
+        opacity:1;
+        transform:scale(1);
+    }
+
+}
+
+.reaction-status{
+    color:var(--blue-dark);
+
+    font-size:11px;
+    font-weight:900;
+
+    letter-spacing:2px;
+}
+
+.reaction-message{
+    margin-top:10px;
+
+    font-size:24px;
+    font-weight:900;
+
+    letter-spacing:-1px;
+}
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+.result{
+    padding:75px 5% 100px;
+
+    text-align:center;
+}
+
+.score{
+    margin:20px 0;
+
+    color:var(--blue-dark);
+
+    font-size:90px;
+    font-weight:900;
+
+    letter-spacing:-6px;
+}
+
+.result-list{
+    max-width:700px;
+
+    margin:30px auto;
+
+    text-align:left;
+}
+
+.result-row{
+    display:flex;
+    justify-content:space-between;
+
+    gap:15px;
+
+    padding:14px;
+
+    border-bottom:1px solid var(--line);
+
+    font-size:11px;
+}
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+.dashboard{
+    margin-top:35px;
+
+    border-top:1px solid var(--line);
+}
+
+.dashboard-title{
+    margin:25px 0 12px;
+
+    font-size:16px;
+}
+
+.player{
+    display:grid;
+
+    grid-template-columns:1fr 100px 150px;
+
+    padding:15px 5px;
+
+    border-bottom:1px solid var(--line);
+
+    font-size:11px;
+}
+
+.player.head{
+    color:var(--gray);
+
+    font-weight:900;
+}
+
+/* =====================================================
+   ABOUT
+===================================================== */
+
+.about{
+    width:88%;
+    max-width:1100px;
+
+    margin:auto;
+
+    padding:85px 0;
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:70px;
+}
+
+.about h2{
+    margin:15px 0 25px;
+
+    font-size:55px;
+
+    line-height:.9;
+
+    letter-spacing:-4px;
+}
+
+.about p{
+    margin-bottom:15px;
+
+    color:var(--gray);
+
+    font-size:13px;
+
+    line-height:1.8;
+}
+
+.profile{
+    padding-top:18px;
+
+    border-top:2px solid var(--blue);
+}
+
+.profile h3{
+    font-size:28px;
+}
+
+.profile .role{
+    margin:4px 0 25px;
+
+    color:var(--blue-dark);
+
+    font-size:10px;
+    font-weight:900;
+
+    letter-spacing:1px;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal{
+    position:fixed;
+
+    inset:0;
+
+    z-index:4000;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:rgba(10,18,25,.55);
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:420px;
+
+    padding:28px;
+
+    background:white;
+
+    animation:modalIn .35s ease;
+}
+
+@keyframes modalIn{
+
+    from{
+        opacity:0;
+        transform:scale(.95) translateY(15px);
+    }
+
+    to{
+        opacity:1;
+        transform:none;
+    }
+
+}
+
+.modal-box h2{
+    margin-bottom:8px;
+
+    font-size:30px;
+
+    letter-spacing:-2px;
+}
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+.toast{
+    position:fixed;
+
+    bottom:20px;
+    left:50%;
+
+    z-index:5000;
+
+    max-width:90%;
+
+    padding:11px 18px;
+
+    border-radius:30px;
+
+    background:var(--black);
+    color:white;
+
+    font-size:10px;
+
+    text-align:center;
+
+    opacity:0;
+
+    transform:translate(-50%,30px);
+
+    transition:.25s;
+}
+
+.toast.show{
+    opacity:1;
+
+    transform:translate(-50%,0);
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+    border-top:1px solid var(--line);
+
+    padding:22px 6%;
+
+    display:flex;
+    justify-content:space-between;
+
+    color:#777;
+
+    font-size:9px;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:760px){
+
+    header{
+        grid-template-columns:1fr auto;
+
+        padding:0 18px;
+    }
+
+    nav{
+        display:none;
+    }
+
+    .hero{
+        width:92%;
+
+        grid-template-columns:1fr;
+
+        min-height:auto;
+
+        padding:45px 0;
+
+        gap:25px;
+    }
+
+    .hero h1{
+        font-size:52px;
+
+        letter-spacing:-4px;
+    }
+
+    .hero-art{
+        min-height:390px;
+    }
+
+    .quiz-card{
+        width:83%;
+    }
+
+    .stats{
+        width:92%;
+
+        grid-template-columns:1fr;
+    }
+
+    .stat{
+        border-right:0;
+
+        border-bottom:1px solid var(--line);
+    }
+
+    .blue-section{
+        padding:55px 6%;
+    }
+
+    .blue-section h2{
+        font-size:38px;
+    }
+
+    .steps{
+        grid-template-columns:1fr;
+    }
+
+    .step{
+        padding:20px 0;
+
+        border-right:0;
+
+        border-bottom:
+            1px solid
+            rgba(255,255,255,.3);
+    }
+
+    .options,
+    .answers{
+        grid-template-columns:1fr;
+    }
+
+    .correct-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .question{
+        font-size:39px;
+    }
+
+    .score{
+        font-size:72px;
+    }
+
+    .about{
+        width:92%;
+
+        grid-template-columns:1fr;
+
+        padding:55px 0;
+
+        gap:45px;
+    }
+
+    .about h2{
+        font-size:44px;
+    }
+
+    .player{
+        grid-template-columns:1fr 65px 80px;
+    }
+
+    .buttons{
+        display:grid;
+
+        grid-template-columns:1fr;
+    }
+
+    .actions{
+        display:grid;
+
+        grid-template-columns:1fr;
+    }
+
+    .actions .btn{
+        width:100%;
+    }
+
+    footer{
+        flex-direction:column;
+
+        gap:7px;
+    }
+
+}
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+
+        animation:none!important;
+
+        transition:none!important;
+
+        scroll-behavior:auto!important;
+
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <div
+        class="logo"
+        onclick="showPage('home')"
+        style="cursor:pointer">
+
+        Tebak<span>Aku</span>
+
+    </div>
+
+
+    <nav>
+
+        <button onclick="showPage('home')">
+            HOME
+        </button>
+
+        <button onclick="showPage('create')">
+            BUAT KUIS
+        </button>
+
+        <button onclick="showPage('about')">
+            ABOUT US
+        </button>
+
+    </nav>
+
+
+    <button
+        class="header-btn"
+        onclick="showPage('create')">
+
+        BUAT KUIS
+
+    </button>
+
+</header>
+
+
+<main>
+
+
+<!-- =====================================================
+     HOME
+===================================================== -->
+
+<section
+    id="home"
+    class="page active">
+
+
+    <div class="hero">
+
+
+        <div class="hero-copy reveal">
+
+            <div class="eyebrow">
+                FRIENDSHIP QUIZ
+            </div>
+
+
+            <h1>
+
+                SEBERAPA<br>
+                KENAL<br>
+
+                <span>
+                    MEREKA?
+                </span>
+
+            </h1>
+
+
+            <p>
+
+                Buat pertanyaan tentang dirimu,
+                bagikan kepada teman, lalu lihat
+                siapa yang benar-benar mengenalmu.
+
+            </p>
+
+
+            <div class="buttons">
+
+                <button
+                    class="btn"
+                    onclick="showPage('create')">
+
+                    BUAT KUIS
+
+                </button>
+
+
+                <button
+                    class="btn secondary"
+                    onclick="openJoin()">
+
+                    MASUKKAN KODE
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-art reveal">
+
+
+            <div class="quiz-card">
+
+                <small>
+                    TEBAKAKU · LIVE
+                </small>
+
+
+                <h2>
+                    Seberapa kenal kamu
+                    dengan temanmu?
+                </h2>
+
+
+                <div class="preview active">
+                    A — Sangat kenal
+                </div>
+
+
+                <div class="preview">
+                    B — Lumayan
+                </div>
+
+
+                <div class="preview">
+                    C — Kurang tahu
+                </div>
+
+
+                <div class="preview">
+                    D — Nggak tahu sama sekali
+                </div>
+
+
+                <div class="live-reaction">
+
+                    <span class="live-dot"></span>
+
+                    <span id="heroReaction">
+                        Temanmu sedang menjawab...
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="stats reveal">
+
+
+        <div class="stat">
+
+            <strong>
+                01
+            </strong>
+
+            <span>
+                Buat pertanyaanmu sendiri
+            </span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <strong>
+                02
+            </strong>
+
+            <span>
+                Bagikan link ke teman
+            </span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <strong>
+                03
+            </strong>
+
+            <span>
+                Lihat siapa yang menjawab
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <section class="blue-section">
+
+
+        <div class="inner">
+
+
+            <h2 class="reveal">
+
+                BUAT. KIRIM.
+                BIARKAN MEREKA
+                MENEBak.
+
+            </h2>
+
+
+            <div class="steps">
+
+
+                <div class="step reveal">
+
+                    <b>
+                        01
+                    </b>
+
+                    <h3>
+                        Buat kuis.
+                    </h3>
+
+                    <p>
+                        Tulis pertanyaan yang
+                        hanya temanmu mungkin tahu.
+                    </p>
+
+                </div>
+
+
+                <div class="step reveal">
+
+                    <b>
+                        02
+                    </b>
+
+                    <h3>
+                        Bagikan.
+                    </h3>
+
+                    <p>
+                        Kirim link kuis kepada
+                        temanmu.
+                    </p>
+
+                </div>
+
+
+                <div class="step reveal">
+
+                    <b>
+                        03
+                    </b>
+
+                    <h3>
+                        Lihat hasil.
+                    </h3>
+
+                    <p>
+                        Lihat nama teman,
+                        skor, dan waktu mereka.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+
+<!-- =====================================================
+     CREATE QUIZ
+===================================================== -->
+
+<section
+    id="create"
+    class="page">
+
+
+    <div class="container">
+
+
+        <div class="title reveal">
+
+            <h2>
+                BUAT KUIS
+            </h2>
+
+            <p>
+                Buat pertanyaanmu sendiri.
+            </p>
+
+        </div>
+
+
+        <label>
+            NAMA KAMU
+        </label>
+
+
+        <input
+            id="creator"
+            maxlength="30"
+            placeholder="Contoh: Kaindra">
+
+
+        <div id="questions"></div>
+
+
+        <div class="actions">
+
+
+            <button
+                class="btn"
+                onclick="addQuestion()">
+
+                + TAMBAH PERTANYAAN
+
+            </button>
+
+
+            <button
+                class="btn"
+                onclick="createQuiz()">
+
+                SELESAI & BUAT LINK
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="shareBox"
+            class="share">
+
+
+            <b>
+                KUIS BERHASIL DIBUAT
+            </b>
+
+
+            <p style="margin-top:7px">
+
+                Bagikan link berikut kepada
+                temanmu.
+
+            </p>
+
+
+            <div
+                id="shareCode"
+                class="code">
+            </div>
+
+
+            <input
+                id="shareLink"
+                readonly>
+
+
+            <div class="actions">
+
+
+                <button
+                    class="btn"
+                    onclick="copyLink()">
+
+                    COPY LINK
+
+                </button>
+
+
+                <button
+                    class="btn secondary"
+                    onclick="shareQuiz()">
+
+                    BAGIKAN
+
+                </button>
+
+
+                <button
+                    class="btn secondary"
+                    onclick="showDashboard()">
+
+                    LIHAT YANG MENJAWAB
+
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+        <div
+            id="dashboardBox"
+            class="dashboard"
+            style="display:none">
+
+
+            <h3 class="dashboard-title">
+
+                YANG SUDAH MENJAWAB
+
+            </h3>
+
+
+            <div class="player head">
+
+                <span>
+                    NAMA
+                </span>
+
+                <span>
+                    SKOR
+                </span>
+
+                <span>
+                    WAKTU
+                </span>
+
+            </div>
+
+
+            <div id="players"></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PLAY
+===================================================== -->
+
+<section
+    id="play"
+    class="page">
+
+
+    <div class="play">
+
+
+        <div
+            id="playMeta"
+            class="eyebrow">
+        </div>
+
+
+        <div
+            id="progressText"
+            style="
+                font-size:10px;
+                color:#777;
+                margin-top:8px;
+            ">
+        </div>
+
+
+        <div class="progress">
+
+            <div
+                id="progressBar"
+                class="progress-bar">
+            </div>
+
+        </div>
+
+
+        <h2
+            id="question"
+            class="question">
+        </h2>
+
+
+        <div
+            id="answers"
+            class="answers">
+        </div>
+
+
+        <div
+            style="
+                text-align:right;
+                margin-top:20px;
+            ">
+
+
+            <button
+                id="nextButton"
+                class="btn"
+                onclick="nextQuestion()">
+
+                LANJUT
+
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     RESULT
+===================================================== -->
+
+<section
+    id="result"
+    class="page">
+
+
+    <div class="result">
+
+
+        <div class="eyebrow">
+            HASIL KUIS
+        </div>
+
+
+        <h2
+            id="resultName"
+            style="font-size:34px">
+        </h2>
+
+
+        <div
+            id="score"
+            class="score">
+
+            0/0
+
+        </div>
+
+
+        <p
+            id="resultText"
+            style="color:#69727b">
+        </p>
+
+
+        <div
+            id="resultList"
+            class="result-list">
+        </div>
+
+
+        <button
+            class="btn"
+            onclick="showPage('home')">
+
+            KEMBALI KE BERANDA
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     ABOUT US
+===================================================== -->
+
+<section
+    id="about"
+    class="page">
+
+
+    <div class="about">
+
+
+        <div class="reveal">
+
+
+            <div class="eyebrow">
+                ABOUT TEBAKAKU
+            </div>
+
+
+            <h2>
+
+                DIBUAT UNTUK
+                DIMAINKAN
+                BARENG.
+
+            </h2>
+
+
+            <p>
+
+                TebakAku adalah permainan
+                pertemanan yang memungkinkan
+                siapa pun membuat kuis tentang
+                dirinya sendiri.
+
+            </p>
+
+
+            <p>
+
+                Setiap pembuat dapat membuat
+                pertanyaan sendiri, menentukan
+                jawaban, lalu membagikan kuis
+                kepada teman.
+
+            </p>
+
+        </div>
+
+
+        <div class="profile reveal">
+
+
+            <div class="eyebrow">
+                THE CREATOR
+            </div>
+
+
+            <h3>
+                Kaindra
+            </h3>
+
+
+            <div class="role">
+
+                STUDENT · CREATOR ·
+                WEB DEVELOPER
+
+            </div>
+
+
+            <p>
+
+               Hai! Aku Kaindra, orang yang berada di balik pembuatan Tebak Pertemanan. Aku tertarik dengan teknologi dan dunia digital, dan website ini dibuat dari ide sederhana untuk seru-seruan bersama teman. Di sini, setiap orang bisa membuat kuis, membagikannya, dan melihat seberapa baik teman mereka mengenal mereka. Website ini juga menjadi salah satu caraku untuk belajar, berkarya, dan mengembangkan ide melalui teknologi.
+
+            </p>
+
+
+            <p>
+
+                Fokus proyek ini adalah membuat
+                pengalaman bermain yang sederhana,
+                modern, ringan, dan nyaman
+                digunakan terutama melalui HP.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+    <span>
+        © 2026 TebakAku
+    </span>
+
+
+    <span>
+        Dibuat oleh <b>Kaindra</b>
+    </span>
+
+</footer>
+
+
+<!-- =====================================================
+     NAME MODAL
+===================================================== -->
+
+<div
+    id="nameModal"
+    class="modal">
+
+
+    <div class="modal-box">
+
+
+        <h2>
+            Sebelum mulai...
+        </h2>
+
+
+        <p style="
+            color:#69727b;
+            font-size:12px;
+            line-height:1.6;
+        ">
+
+            Masukkan nama yang akan
+            ditampilkan kepada pembuat kuis.
+
+        </p>
+
+
+        <label>
+            NAMA KAMU
+        </label>
+
+
+        <input
+            id="playerName"
+            maxlength="30"
+            placeholder="Contoh: Rizky">
+
+
+        <div class="actions">
+
+
+            <button
+                class="btn secondary"
+                onclick="closeNameModal()">
+
+                BATAL
+
+            </button>
+
+
+            <button
+                class="btn"
+                onclick="confirmPlayer()">
+
+                MULAI KUIS
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     JOIN MODAL
+===================================================== -->
+
+<div
+    id="joinModal"
+    class="modal">
+
+
+    <div class="modal-box">
+
+
+        <h2>
+            Masukkan kode
+        </h2>
+
+
+        <p style="
+            color:#69727b;
+            font-size:12px;
+            line-height:1.6;
+        ">
+
+            Masukkan kode kuis yang diberikan
+            oleh temanmu.
+
+        </p>
+
+
+        <label>
+            KODE KUIS
+        </label>
+
+
+        <input
+            id="joinCode"
+            maxlength="6"
+            placeholder="ABC123"
+            style="text-transform:uppercase">
+
+
+        <div class="actions">
+
+
+            <button
+                class="btn secondary"
+                onclick="closeJoin()">
+
+                BATAL
+
+            </button>
+
+
+            <button
+                class="btn"
+                onclick="joinQuiz()">
+
+                LANJUT
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     REACTION
+===================================================== -->
+
+<div
+    id="answerReaction"
+    class="answer-reaction">
+
+
+    <div class="reaction-box">
+
+
+        <div
+            id="reactionStatus"
+            class="reaction-status">
+
+            BENAR
+
+        </div>
+
+
+        <div
+            id="reactionMessage"
+            class="reaction-message">
+
+            Nah, ini baru teman yang kenal.
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div
+    id="toast"
+    class="toast">
+</div>
+
+
+<script>
+
+/* =====================================================
+   FIREBASE CONFIG
+   ================================================
+
+   MASUKKAN CONFIG FIREBASE KAMU DI SINI.
+
+   CONTOH:
+
+   const firebaseConfig = {
+       apiKey: "xxxxx",
+       authDomain: "xxxxx.firebaseapp.com",
+       projectId: "xxxxx",
+       storageBucket: "xxxxx.appspot.com",
+       messagingSenderId: "xxxxx",
+       appId: "xxxxx"
+   };
+
+===================================================== */
+
+const firebaseConfig = {
+
+    apiKey:
+        "ISI_API_KEY_KAMU",
+
+    authDomain:
+        "ISI_PROJECT_ID.firebaseapp.com",
+
+    projectId:
+        "ISI_PROJECT_ID",
+
+    storageBucket:
+        "ISI_PROJECT_ID.appspot.com",
+
+    messagingSenderId:
+        "ISI_MESSAGING_SENDER_ID",
+
+    appId:
+        "ISI_APP_ID"
+
+};
+
+
+/* =====================================================
+   FIREBASE STATE
+===================================================== */
+
+let firebaseReady = false;
+
+let db = null;
+
+let auth = null;
+
+
+/* =====================================================
+   INITIALIZE FIREBASE
+===================================================== */
+
+function initFirebase(){
+
+    try{
+
+        if(
+            firebaseConfig.apiKey ===
+            "ISI_API_KEY_KAMU"
+        ){
+
+            console.log(
+                "Firebase belum dikonfigurasi."
+            );
+
+            return;
+
+        }
+
+
+        firebase.initializeApp(
+            firebaseConfig
+        );
+
+
+        db =
+            firebase.firestore();
+
+
+        auth =
+            firebase.auth();
+
+
+        firebaseReady = true;
+
+
+        auth
+            .signInAnonymously()
+            .catch(
+                error =>
+                    console.error(
+                        "Firebase Auth:",
+                        error
+                    )
+            );
+
+
+    }catch(error){
+
+        console.error(
+            "Firebase initialization error:",
+            error
+        );
+
+    }
+
+}
+
+
+initFirebase();
+
+
+/* =====================================================
+   GLOBAL STATE
+===================================================== */
+
+let questions = [];
+
+let current = 0;
+
+let score = 0;
+
+let selected = [];
+
+let activeCode = "";
+
+let player = "";
+
+let startTime = 0;
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+function showPage(id){
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
+
+            page.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    const page =
+        document.getElementById(id);
+
+
+    if(!page){
+        return;
+    }
+
+
+    page.classList.add(
+        "active"
+    );
+
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
+
+    setTimeout(
+        initReveal,
+        100
+    );
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function toast(text){
+
+    const element =
+        document.getElementById(
+            "toast"
+        );
+
+
+    element.textContent =
+        text;
+
+
+    element.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        window.toastTimer
+    );
+
+
+    window.toastTimer =
+        setTimeout(
+            () => {
+
+                element.classList.remove(
+                    "show"
+                );
+
+            },
+            2200
+        );
+
+}
+
+
+/* =====================================================
+   SCROLL REVEAL
+===================================================== */
+
+function initReveal(){
+
+    const elements =
+        document.querySelectorAll(
+            ".reveal"
+        );
+
+
+    if(
+        !("IntersectionObserver"
+            in window)
+    ){
+
+        elements.forEach(
+            element =>
+                element.classList.add(
+                    "show"
+                )
+        );
+
+        return;
+
+    }
+
+
+    const observer =
+        new IntersectionObserver(
+
+            entries => {
+
+                entries.forEach(
+                    entry => {
+
+                        if(
+                            entry.isIntersecting
+                        ){
+
+                            entry.target
+                                .classList
+                                .add("show");
+
+
+                            observer.unobserve(
+                                entry.target
+                            );
+
+                        }
+
+                    }
+                );
+
+            },
+
+            {
+                threshold:.12
+            }
+
+        );
+
+
+    elements.forEach(
+        element => {
+
+            if(
+                !element
+                    .classList
+                    .contains("show")
+            ){
+
+                observer.observe(
+                    element
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+initReveal();
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(text){
+
+    return String(text)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   GENERATE CODE
+===================================================== */
+
+function generateCode(){
+
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+
+    let code = "";
+
+
+    for(
+        let i=0;
+        i<6;
+        i++
+    ){
+
+        code +=
+            chars[
+                Math.floor(
+                    Math.random()
+                    *
+                    chars.length
+                )
+            ];
+
+    }
+
+
+    return code;
+
+}
+
+
+/* =====================================================
+   ADD QUESTION
+===================================================== */
+
+function addQuestion(){
+
+    const container =
+        document.getElementById(
+            "questions"
+        );
+
+
+    const count =
+        container
+        .querySelectorAll(
+            ".question-box"
+        )
+        .length;
+
+
+    if(
+        count >= 20
+    ){
+
+        toast(
+            "Maksimal 20 pertanyaan."
+        );
+
+        return;
+
+    }
+
+
+    const number =
+        count + 1;
+
+
+    const box =
+        document.createElement(
+            "div"
+        );
+
+
+    box.className =
+        "question-box";
+
+
+    box.innerHTML = `
+
+        <div class="question-top">
+
+            <div class="question-number">
+                PERTANYAAN ${number}
+            </div>
+
+            <button
+                class="remove-question"
+                type="button"
+                onclick="removeQuestion(this)">
+
+                HAPUS
+
+            </button>
+
+        </div>
+
+
+        <label>
+            PERTANYAAN
+        </label>
+
+
+        <textarea
+            class="q-text"
+            maxlength="180"
+            placeholder="Contoh: Apa makanan favoritku?">
+        </textarea>
+
+
+        <label>
+            PILIHAN JAWABAN
+        </label>
+
+
+        <div class="options">
+
+            <input
+                class="q-option"
+                maxlength="80"
+                placeholder="Pilihan A">
+
+            <input
+                class="q-option"
+                maxlength="80"
+                placeholder="Pilihan B">
+
+            <input
+                class="q-option"
+                maxlength="80"
+                placeholder="Pilihan C">
+
+            <input
+                class="q-option"
+                maxlength="80"
+                placeholder="Pilihan D">
+
+        </div>
+
+
+        <label>
+            JAWABAN BENAR
+        </label>
+
+
+        <div class="correct-grid">
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="correct-${number}"
+                    value="0"
+                    checked>
+
+                A
+
+            </label>
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="correct-${number}"
+                    value="1">
+
+                B
+
+            </label>
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="correct-${number}"
+                    value="2">
+
+                C
+
+            </label>
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="correct-${number}"
+                    value="3">
+
+                D
+
+            </label>
+
+        </div>
+
+    `;
+
+
+    container.appendChild(
+        box
+    );
+
+}
+
+
+/* =====================================================
+   REMOVE QUESTION
+===================================================== */
+
+function removeQuestion(button){
+
+    const box =
+        button.closest(
+            ".question-box"
+        );
+
+
+    if(box){
+
+        box.remove();
+
+        renumberQuestions();
+
+    }
+
+}
+
+
+/* =====================================================
+   RENUMBER
+===================================================== */
+
+function renumberQuestions(){
+
+    const boxes =
+        document.querySelectorAll(
+            ".question-box"
+        );
+
+
+    boxes.forEach(
+        (box,index) => {
+
+            const number =
+                index + 1;
+
+
+            const title =
+                box.querySelector(
+                    ".question-number"
+                );
+
+
+            if(title){
+
+                title.textContent =
+                    `PERTANYAAN ${number}`;
+
+            }
+
+
+            box
+            .querySelectorAll(
+                'input[type="radio"]'
+            )
+            .forEach(
+                input => {
+
+                    input.name =
+                        `correct-${number}`;
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   GET QUIZ DATA FROM FORM
+===================================================== */
+
+function getQuizFormData(){
+
+    const boxes = [
+
+        ...
+        document.querySelectorAll(
+            ".question-box"
+        )
+
+    ];
+
+
+    return boxes.map(
+        box => {
+
+            const question =
+                box
+                .querySelector(
+                    ".q-text"
+                )
+                .value
+                .trim();
+
+
+            const options = [
+
+                ...
+                box.querySelectorAll(
+                    ".q-option"
+                )
+
+            ].map(
+                input =>
+                    input.value.trim()
+            );
+
+
+            const selectedCorrect =
+                box.querySelector(
+                    'input[type="radio"]:checked'
+                );
+
+
+            const correct =
+                selectedCorrect
+                ?
+                Number(
+                    selectedCorrect.value
+                )
+                :
+                0;
+
+
+            return {
+
+                question,
+
+                options,
+
+                correct
+
+            };
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CREATE QUIZ
+===================================================== */
+
+async function createQuiz(){
+
+    const creator =
+        document
+        .getElementById(
+            "creator"
+        )
+        .value
+        .trim();
+
+
+    if(!creator){
+
+        toast(
+            "Masukkan nama kamu terlebih dahulu."
+        );
+
+        return;
+
+    }
+
+
+    const data =
+        getQuizFormData();
+
+
+    if(
+        data.length === 0
+    ){
+
+        toast(
+            "Tambahkan minimal satu pertanyaan."
+        );
+
+        return;
+
+    }
+
+
+    const invalid =
+        data.some(
+            item =>
+                !item.question ||
+                item.options.length !== 4 ||
+                item.options.some(
+                    option =>
+                        !option
+                )
+        );
+
+
+    if(invalid){
+
+        toast(
+            "Lengkapi semua pertanyaan dan pilihan jawaban."
+        );
+
+        return;
+
+    }
+
+
+    if(firebaseReady){
+
+        await createQuizOnline(
+            creator,
+            data
+        );
+
+    }else{
+
+        createQuizLocal(
+            creator,
+            data
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CREATE ONLINE
+===================================================== */
+
+async function createQuizOnline(
+    creator,
+    data
+){
+
+    try{
+
+        if(
+            !auth.currentUser
+        ){
+
+            await auth
+                .signInAnonymously();
+
+        }
+
+
+        let code;
+
+        let exists = true;
+
+
+        while(exists){
+
+            code =
+                generateCode();
+
+
+            const snapshot =
+                await db
+                .collection("quizzes")
+                .doc(code)
+                .get();
+
+
+            exists =
+                snapshot.exists;
+
+        }
+
+
+        await db
+        .collection("quizzes")
+        .doc(code)
+        .set({
+
+            creator:
+                creator,
+
+            questions:
+                data,
+
+            ownerUid:
+                auth.currentUser.uid,
+
+            createdAt:
+                firebase
+                .firestore
+                .FieldValue
+                .serverTimestamp()
+
+        });
+
+
+        activeCode =
+            code;
+
+
+        showShareBox(
+            code
+        );
+
+
+        toast(
+            "Kuis berhasil dibuat online."
+        );
+
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+
+
+        toast(
+            "Gagal membuat kuis online."
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CREATE LOCAL
+===================================================== */
+
+function createQuizLocal(
+    creator,
+    data
+){
+
+    let quizzes =
+        getLocalQuizzes();
+
+
+    let code =
+        generateCode();
+
+
+    while(
+        quizzes[code]
+    ){
+
+        code =
+            generateCode();
+
+    }
+
+
+    quizzes[code] = {
+
+        creator:
+            creator,
+
+        questions:
+            data,
+
+        players:[]
+
+    };
+
+
+    saveLocalQuizzes(
+        quizzes
+    );
+
+
+    activeCode =
+        code;
+
+
+    showShareBox(
+        code
+    );
+
+
+    toast(
+        "Mode lokal aktif. Firebase belum dikonfigurasi."
+    );
+
+}
+
+
+/* =====================================================
+   SHOW SHARE
+===================================================== */
+
+function showShareBox(
+    code
+){
+
+    const link =
+        location.href
+        .split("#")[0]
+        +
+        "#quiz="
+        +
+        code;
+
+
+    document
+    .getElementById(
+        "shareCode"
+    )
+    .textContent =
+        code;
+
+
+    document
+    .getElementById(
+        "shareLink"
+    )
+    .value =
+        link;
+
+
+    document
+    .getElementById(
+        "shareBox"
+    )
+    .style
+    .display =
+        "block";
+
+
+    window.scrollTo({
+
+        top:
+            document
+            .getElementById(
+                "shareBox"
+            )
+            .offsetTop
+            - 100,
+
+        behavior:"smooth"
+
+    });
+
+}
+
+
+/* =====================================================
+   LOCAL STORAGE
+===================================================== */
+
+function getLocalQuizzes(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(
+                "tebakAkuQuizzes"
+            )
+        ) || {};
+
+    }catch{
+
+        return {};
+
+    }
+
+}
+
+
+function saveLocalQuizzes(
+    data
+){
+
+    localStorage.setItem(
+        "tebakAkuQuizzes",
+        JSON.stringify(data)
+    );
+
+}
+
+
+/* =====================================================
+   COPY
+===================================================== */
+
+async function copyLink(){
+
+    const input =
+        document.getElementById(
+            "shareLink"
+        );
+
+
+    try{
+
+        await navigator.clipboard
+            .writeText(
+                input.value
+            );
+
+
+        toast(
+            "Link berhasil disalin."
+        );
+
+
+    }catch{
+
+        input.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+
+        toast(
+            "Link berhasil disalin."
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SHARE
+===================================================== */
+
+async function shareQuiz(){
+
+    const link =
+        document
+        .getElementById(
+            "shareLink"
+        )
+        .value;
+
+
+    if(
+        navigator.share
+    ){
+
+        try{
+
+            await navigator.share({
+
+                title:
+                    "TebakAku",
+
+                text:
+                    "Coba tebak seberapa kenal kamu denganku.",
+
+                url:
+                    link
+
+            });
+
+        }catch{}
+
+    }else{
+
+        copyLink();
+
+    }
+
+}
+
+
+/* =====================================================
+   JOIN MODAL
+===================================================== */
+
+function openJoin(){
+
+    document
+    .getElementById(
+        "joinModal"
+    )
+    .classList
+    .add("show");
+
+}
+
+
+function closeJoin(){
+
+    document
+    .getElementById(
+        "joinModal"
+    )
+    .classList
+    .remove("show");
+
+}
+
+
+/* =====================================================
+   JOIN QUIZ
+===================================================== */
+
+async function joinQuiz(){
+
+    const input =
+        document
+        .getElementById(
+            "joinCode"
+        );
+
+
+    const code =
+        input
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    if(
+        !/^[A-Z0-9]{6}$/.test(
+            code
+        )
+    ){
+
+        toast(
+            "Kode harus terdiri dari 6 karakter."
+        );
+
+        return;
+
+    }
+
+
+    let exists = false;
+
+
+    if(firebaseReady){
+
+        try{
+
+            const snapshot =
+                await db
+                .collection("quizzes")
+                .doc(code)
+                .get();
+
+
+            exists =
+                snapshot.exists;
+
+        }catch(error){
+
+            console.error(
+                error
+            );
+
+            toast(
+                "Gagal memeriksa kuis."
+            );
+
+            return;
+
+        }
+
+    }else{
+
+        exists =
+            Boolean(
+                getLocalQuizzes()[code]
+            );
+
+    }
+
+
+    if(!exists){
+
+        toast(
+            "Kuis tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    activeCode =
+        code;
+
+
+    closeJoin();
+
+
+    document
+    .getElementById(
+        "nameModal"
+    )
+    .classList
+    .add("show");
+
+}
+
+
+/* =====================================================
+   NAME MODAL
+===================================================== */
+
+function closeNameModal(){
+
+    document
+    .getElementById(
+        "nameModal"
+    )
+    .classList
+    .remove("show");
+
+}
+
+
+async function confirmPlayer(){
+
+    const input =
+        document
+        .getElementById(
+            "playerName"
+        );
+
+
+    const name =
+        input
+        .value
+        .trim();
+
+
+    if(!name){
+
+        toast(
+            "Nama wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        name.length < 2
+    ){
+
+        toast(
+            "Nama minimal 2 karakter."
+        );
+
+        return;
+
+    }
+
+
+    player =
+        name;
+
+
+    closeNameModal();
+
+
+    await startQuiz(
+        activeCode
+    );
+
+}
+
+
+/* =====================================================
+   START QUIZ
+===================================================== */
+
+async function startQuiz(
+    code
+){
+
+    let quiz = null;
+
+
+    if(firebaseReady){
+
+        try{
+
+            const snapshot =
+                await db
+                .collection("quizzes")
+                .doc(code)
+                .get();
+
+
+            if(
+                !snapshot.exists
+            ){
+
+                toast(
+                    "Kuis tidak ditemukan."
+                );
+
+                return;
+
+            }
+
+
+            quiz =
+                snapshot.data();
+
+
+        }catch(error){
+
+            console.error(
+                error
+            );
+
+
+            toast(
+                "Gagal mengambil kuis."
+            );
+
+            return;
+
+        }
+
+    }else{
+
+        quiz =
+            getLocalQuizzes()[code];
+
+    }
+
+
+    if(!quiz){
+
+        toast(
+            "Kuis tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    activeCode =
+        code;
+
+
+    questions =
+        Array.isArray(
+            quiz.questions
+        )
+        ?
+        quiz.questions
+        :
+        [];
+
+
+    if(
+        questions.length === 0
+    ){
+
+        toast(
+            "Kuis ini tidak memiliki pertanyaan."
+        );
+
+        return;
+
+    }
+
+
+    current =
+        0;
+
+
+    score =
+        0;
+
+
+    selected =
+        new Array(
+            questions.length
+        );
+
+
+    startTime =
+        Date.now();
+
+
+    document
+    .getElementById(
+        "playMeta"
+    )
+    .textContent =
+
+        `${quiz.creator} · TEBAKAKU`;
+
+
+    renderQuestion();
+
+
+    showPage(
+        "play"
+    );
+
+}
+
+
+/* =====================================================
+   RENDER QUESTION
+===================================================== */
+
+function renderQuestion(){
+
+    const q =
+        questions[
+            current
+        ];
+
+
+    document
+    .getElementById(
+        "progressText"
+    )
+    .textContent =
+
+        `PERTANYAAN ${current + 1} / ${questions.length}`;
+
+
+    document
+    .getElementById(
+        "progressBar"
+    )
+    .style
+    .width =
+
+        (
+            (
+                current + 1
+            )
+            /
+            questions.length
+            *
+            100
+        ) + "%";
+
+
+    const title =
+        document
+        .getElementById(
+            "question"
+        );
+
+
+    title.style.animation =
+        "none";
+
+
+    void title.offsetWidth;
+
+
+    title.style.animation =
+        "questionIn .4s ease";
+
+
+    title.textContent =
+        q.question;
+
+
+    const answers =
+        document
+        .getElementById(
+            "answers"
+        );
+
+
+    answers.innerHTML =
+        "";
+
+
+    q.options.forEach(
+        (
+            option,
+            index
+        ) => {
+
+            const button =
+                document
+                .createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "answer";
+
+
+            button.innerHTML = `
+
+                <b>
+                    ${String.fromCharCode(
+                        65 + index
+                    )}
+                </b>
+
+                &nbsp;&nbsp;
+
+                ${escapeHTML(
+                    option
+                )}
+
+            `;
+
+
+            button.onclick =
+                () =>
+                    selectAnswer(
+                        index,
+                        button
+                    );
+
+
+            answers.appendChild(
+                button
+            );
+
+        }
+    );
+
+
+    document
+    .getElementById(
+        "nextButton"
+    )
+    .textContent =
+
+        current ===
+        questions.length - 1
+
+        ?
+
+        "LIHAT HASIL"
+
+        :
+
+        "LANJUT";
+
+}
+
+
+/* =====================================================
+   REACTIONS
+===================================================== */
+
+const correctReactions = [
+
+    "Nah, ini baru teman yang kenal.",
+
+    "Benar. Kamu masih hafal.",
+
+    "Oke, yang ini aman.",
+
+    "Lumayan. Kamu tahu juga.",
+
+    "Benar. Poin masuk."
+
+];
+
+
+const wrongReactions = [
+
+    "Yah, salah.",
+
+    "Waduh, yang ini nggak tahu?",
+
+    "Mulai mencurigakan.",
+
+    "Hmm... kurang memperhatikan.",
+
+    "Jawabanmu melenceng."
+
+];
+
+
+function randomReaction(
+    array
+){
+
+    return array[
+        Math.floor(
+            Math.random()
+            *
+            array.length
+        )
+    ];
+
+}
+
+
+/* =====================================================
+   SELECT ANSWER
+===================================================== */
+
+function selectAnswer(
+    index,
+    button
+){
+
+    if(
+        selected[current] !==
+        undefined
+    ){
+
+        return;
+
+    }
+
+
+    selected[current] =
+        index;
+
+
+    const correct =
+        index ===
+        questions[current]
+        .correct;
+
+
+    document
+    .querySelectorAll(
+        ".answer"
+    )
+    .forEach(
+        element => {
+
+            element.style
+                .pointerEvents =
+                "none";
+
+        }
+    );
+
+
+    if(correct){
+
+        score++;
+
+
+        button
+        .classList
+        .add(
+            "correct-pop"
+        );
+
+
+        showAnswerReaction(
+
+            true,
+
+            randomReaction(
+                correctReactions
+            )
+
+        );
+
+    }else{
+
+        button
+        .classList
+        .add(
+            "wrong-pop"
+        );
+
+
+        const correctButton =
+            document
+            .querySelectorAll(
+                ".answer"
+            )
+            [
+                questions[current]
+                .correct
+            ];
+
+
+        if(
+            correctButton
+        ){
+
+            setTimeout(
+                () => {
+
+                    correctButton
+                    .classList
+                    .add(
+                        "correct-pop"
+                    );
+
+                },
+                150
+            );
+
+        }
+
+
+        showAnswerReaction(
+
+            false,
+
+            randomReaction(
+                wrongReactions
+            )
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   REACTION POPUP
+===================================================== */
+
+function showAnswerReaction(
+    correct,
+    message
+){
+
+    const overlay =
+        document
+        .getElementById(
+            "answerReaction"
+        );
+
+
+    document
+    .getElementById(
+        "reactionStatus"
+    )
+    .textContent =
+
+        correct
+        ?
+        "BENAR"
+        :
+        "SALAH";
+
+
+    document
+    .getElementById(
+        "reactionMessage"
+    )
+    .textContent =
+        message;
+
+
+    overlay
+    .classList
+    .remove(
+        "show"
+    );
+
+
+    void overlay.offsetWidth;
+
+
+    overlay
+    .classList
+    .add(
+        "show"
+    );
+
+
+    setTimeout(
+        () => {
+
+            overlay
+            .classList
+            .remove(
+                "show"
+            );
+
+        },
+        900
+    );
+
+}
+
+
+/* =====================================================
+   NEXT QUESTION
+===================================================== */
+
+function nextQuestion(){
+
+    if(
+        selected[current] ===
+        undefined
+    ){
+
+        toast(
+            "Pilih jawaban terlebih dahulu."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        current <
+        questions.length - 1
+    ){
+
+        current++;
+
+        renderQuestion();
+
+        window.scrollTo({
+
+            top:0,
+
+            behavior:"smooth"
+
+        });
+
+    }else{
+
+        finishQuiz();
+
+    }
+
+}
+
+
+/* =====================================================
+   FINISH
+===================================================== */
+
+async function finishQuiz(){
+
+    const elapsed =
+        Math.max(
+            0,
+            Math.round(
+                (
+                    Date.now()
+                    -
+                    startTime
+                )
+                /
+                1000
+            )
+        );
+
+
+    const minutes =
+        Math.floor(
+            elapsed / 60
+        );
+
+
+    const seconds =
+        elapsed % 60;
+
+
+    const time =
+        `${minutes}m ${seconds}s`;
+
+
+    await savePlayerResult(
+        time
+    );
+
+
+    showResult(
+        time
+    );
+
+}
+
+
+/* =====================================================
+   SAVE ONLINE RESULT
+===================================================== */
+
+async function savePlayerResultOnline(
+    time
+){
+
+    if(
+        !firebaseReady
+    ){
+
+        return false;
+
+    }
+
+
+    try{
+
+        await db
+
+        .collection(
+            "quizzes"
+        )
+
+        .doc(
+            activeCode
+        )
+
+        .collection(
+            "players"
+        )
+
+        .add({
+
+            name:
+                player,
+
+            score:
+                score,
+
+            total:
+                questions.length,
+
+            time:
+                time,
+
+            answers:
+                selected,
+
+            createdAt:
+                firebase
+                .firestore
+                .FieldValue
+                .serverTimestamp()
+
+        });
+
+
+        return true;
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   SAVE LOCAL RESULT
+===================================================== */
+
+function savePlayerResultLocal(
+    time
+){
+
+    const quizzes =
+        getLocalQuizzes();
+
+
+    if(
+        !quizzes[activeCode]
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        !Array.isArray(
+            quizzes[activeCode]
+                .players
+        )
+    ){
+
+        quizzes[activeCode]
+            .players = [];
+
+    }
+
+
+    quizzes[activeCode]
+        .players
+        .push({
+
+            name:
+                player,
+
+            score:
+                score,
+
+            total:
+                questions.length,
+
+            time:
+                time,
+
+            createdAt:
+                Date.now()
+
+        });
+
+
+    saveLocalQuizzes(
+        quizzes
+    );
+
+}
+
+
+async function savePlayerResult(
+    time
+){
+
+    if(firebaseReady){
+
+        const success =
+            await savePlayerResultOnline(
+                time
+            );
+
+
+        if(!success){
+
+            toast(
+                "Hasil tidak tersimpan online."
+            );
+
+        }
+
+    }else{
+
+        savePlayerResultLocal(
+            time
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RESULT MESSAGE
+===================================================== */
+
+function finalReaction(
+    percentage
+){
+
+    if(
+        percentage === 100
+    ){
+
+        return "Sempurna. Kamu benar-benar mengenal orang ini.";
+
+    }
+
+
+    if(
+        percentage >= 80
+    ){
+
+        return "Hampir sempurna. Kamu cukup mengenalnya.";
+
+    }
+
+
+    if(
+        percentage >= 50
+    ){
+
+        return "Lumayan. Masih ada beberapa jawaban yang meleset.";
+
+    }
+
+
+    return "Sepertinya masih banyak yang harus kamu ketahui.";
+
+}
+
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+function showResult(
+    time
+){
+
+    const percentage =
+        Math.round(
+            score
+            /
+            questions.length
+            *
+            100
+        );
+
+
+    document
+    .getElementById(
+        "resultName"
+    )
+    .textContent =
+        player;
+
+
+    document
+    .getElementById(
+        "score"
+    )
+    .textContent =
+
+        `0/${questions.length}`;
+
+
+    document
+    .getElementById(
+        "resultText"
+    )
+    .textContent =
+
+        `${finalReaction(
+            percentage
+        )} Waktu: ${time}.`;
+
+
+    const list =
+        document
+        .getElementById(
+            "resultList"
+        );
+
+
+    list.innerHTML =
+        "";
+
+
+    questions.forEach(
+        (
+            q,
+            index
+        ) => {
+
+            const correct =
+                selected[index]
+                ===
+                q.correct;
+
+
+            const row =
+                document
+                .createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "result-row";
+
+
+            row.innerHTML = `
+
+                <span>
+
+                    ${index + 1}.
+                    ${escapeHTML(
+                        q.question
+                    )}
+
+                </span>
+
+
+                <b style="
+                    color:
+                    ${
+                        correct
+                        ?
+                        "#1769aa"
+                        :
+                        "#777"
+                    };
+                ">
+
+                    ${
+                        correct
+                        ?
+                        "BENAR"
+                        :
+                        "SALAH"
+                    }
+
+                </b>
+
+            `;
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    showPage(
+        "result"
+    );
+
+
+    animateScore();
+
+}
+
+
+/* =====================================================
+   SCORE ANIMATION
+===================================================== */
+
+function animateScore(){
+
+    const element =
+        document
+        .getElementById(
+            "score"
+        );
+
+
+    const target =
+        score;
+
+
+    const total =
+        questions.length;
+
+
+    const start =
+        performance.now();
+
+
+    const duration =
+        800;
+
+
+    function update(
+        timestamp
+    ){
+
+        const progress =
+            Math.min(
+                (
+                    timestamp -
+                    start
+                )
+                /
+                duration,
+                1
+            );
+
+
+        const value =
+            Math.floor(
+                progress *
+                target
+            );
+
+
+        element.textContent =
+            `${value}/${total}`;
+
+
+        if(
+            progress < 1
+        ){
+
+            requestAnimationFrame(
+                update
+            );
+
+        }else{
+
+            element.textContent =
+                `${target}/${total}`;
+
+        }
+
+    }
+
+
+    requestAnimationFrame(
+        update
+    );
+
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+async function showDashboard(){
+
+    if(
+        !activeCode
+    ){
+
+        toast(
+            "Belum ada kuis."
+        );
+
+        return;
+
+    }
+
+
+    const dashboard =
+        document
+        .getElementById(
+            "dashboardBox"
+        );
+
+
+    const container =
+        document
+        .getElementById(
+            "players"
+        );
+
+
+    dashboard.style.display =
+        "block";
+
+
+    container.innerHTML = `
+
+        <div style="
+            padding:20px 5px;
+            color:#777;
+            font-size:11px;
+        ">
+
+            Mengambil data...
+
+        </div>
+
+    `;
+
+
+    if(firebaseReady){
+
+        await showOnlineDashboard(
+            container
+        );
+
+    }else{
+
+        showLocalDashboard(
+            container
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ONLINE DASHBOARD
+===================================================== */
+
+async function showOnlineDashboard(
+    container
+){
+
+    try{
+
+        const snapshot =
+
+            await db
+
+            .collection(
+                "quizzes"
+            )
+
+            .doc(
+                activeCode
+            )
+
+            .collection(
+                "players"
+            )
+
+            .orderBy(
+                "createdAt",
+                "desc"
+            )
+
+            .get();
+
+
+        container.innerHTML =
+            "";
+
+
+        if(
+            snapshot.empty
+        ){
+
+            container.innerHTML = `
+
+                <div style="
+                    padding:20px 5px;
+                    color:#777;
+                    font-size:11px;
+                ">
+
+                    Belum ada yang mengerjakan.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        snapshot.forEach(
+            doc => {
+
+                const data =
+                    doc.data();
+
+
+                const row =
+                    document
+                    .createElement(
+                        "div"
+                    );
+
+
+                row.className =
+                    "player";
+
+
+                row.innerHTML = `
+
+                    <span>
+                        ${escapeHTML(
+                            data.name
+                        )}
+                    </span>
+
+                    <span>
+                        ${data.score}/${data.total}
+                    </span>
+
+                    <span>
+                        ${escapeHTML(
+                            data.time || "-"
+                        )}
+                    </span>
+
+                `;
+
+
+                container.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div style="
+                padding:20px 5px;
+                color:#777;
+                font-size:11px;
+            ">
+
+                Data online belum dapat
+                ditampilkan.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   LOCAL DASHBOARD
+===================================================== */
+
+function showLocalDashboard(
+    container
+){
+
+    const quiz =
+        getLocalQuizzes()
+        [activeCode];
+
+
+    container.innerHTML =
+        "";
+
+
+    if(
+        !quiz ||
+        !quiz.players ||
+        quiz.players.length === 0
+    ){
+
+        container.innerHTML = `
+
+            <div style="
+                padding:20px 5px;
+                color:#777;
+                font-size:11px;
+            ">
+
+                Belum ada yang mengerjakan.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    [...quiz.players]
+    .reverse()
+    .forEach(
+        data => {
+
+            const row =
+                document
+                .createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "player";
+
+
+            row.innerHTML = `
+
+                <span>
+                    ${escapeHTML(
+                        data.name
+                    )}
+                </span>
+
+                <span>
+                    ${data.score}/${data.total}
+                </span>
+
+                <span>
+                    ${escapeHTML(
+                        data.time || "-"
+                    )}
+                </span>
+
+            `;
+
+
+            container.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   HERO TEXT ANIMATION
+===================================================== */
+
+const heroReactions = [
+
+    "Temanmu sedang menjawab...",
+
+    "Ada yang mulai ragu...",
+
+    "Satu jawaban lagi.",
+
+    "Jawabannya cepat.",
+
+    "Mereka yakin dengan jawabannya.",
+
+    "Kayaknya ada yang benar-benar kenal."
+
+];
+
+
+let heroIndex =
+    0;
+
+
+function animateHeroReaction(){
+
+    const element =
+        document.getElementById(
+            "heroReaction"
+        );
+
+
+    if(!element){
+        return;
+    }
+
+
+    element.style.opacity =
+        "0";
+
+
+    setTimeout(
+        () => {
+
+            element.textContent =
+                heroReactions[
+                    heroIndex
+                ];
+
+
+            element.style.opacity =
+                "1";
+
+
+            heroIndex =
+                (
+                    heroIndex + 1
+                )
+                %
+                heroReactions.length;
+
+        },
+        250
+    );
+
+}
+
+
+setInterval(
+    animateHeroReaction,
+    2500
+);
+
+
+/* =====================================================
+   INITIAL QUESTIONS
+===================================================== */
+
+addQuestion();
+
+addQuestion();
+
+addQuestion();
+
+
+/* =====================================================
+   HASH ROUTING
+===================================================== */
+
+async function loadQuizFromHash(){
+
+    const hash =
+        location.hash;
+
+
+    if(
+        !hash.startsWith(
+            "#quiz="
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const code =
+        hash
+        .substring(
+            6
+        )
+        .trim()
+        .toUpperCase();
+
+
+    if(
+        !/^[A-Z0-9]{6}$/.test(
+            code
+        )
+    ){
+
+        return;
+
+    }
+
+
+    let exists =
+        false;
+
+
+    if(firebaseReady){
+
+        try{
+
+            const snapshot =
+                await db
+                .collection("quizzes")
+                .doc(code)
+                .get();
+
+
+            exists =
+                snapshot.exists;
+
+        }catch(error){
+
+            console.error(
+                error
+            );
+
+        }
+
+    }else{
+
+        exists =
+            Boolean(
+                getLocalQuizzes()[code]
+            );
+
+    }
+
+
+    if(!exists){
+
+        toast(
+            "Kuis pada link ini tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    activeCode =
+        code;
+
+
+    document
+    .getElementById(
+        "nameModal"
+    )
+    .classList
+    .add("show");
+
+}
+
+
+window.addEventListener(
+    "hashchange",
+    loadQuizFromHash
+);
+
+
+setTimeout(
+    loadQuizFromHash,
+    500
+);
+
+</script>
+
+</body>
+</html>
